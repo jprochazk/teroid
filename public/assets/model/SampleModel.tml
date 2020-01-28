@@ -1,0 +1,29 @@
+{
+    "name": "SampleModel",
+    "materials": [
+        {
+            "name": "SampleMaterial",
+            "shader": {
+                "name": "flat_shader"
+            },
+            "properties": {
+                "u_color": [0, 0.5, 1]
+            }
+        }
+    ],
+    "meshes": [
+        {
+            "name": "SampleMesh",
+            "material": "SampleMaterial",
+            "buffers": {
+                "vertex": [
+                    0.5,  0.5, 0.0,
+                    0.5, -0.5, 0.0,
+                    -0.5, -0.5, 0.0,
+                    -0.5,  0.5, 0.0
+                ],
+                "index": [0, 1, 3, 1, 2, 3]
+            }
+        }
+    ]
+}
