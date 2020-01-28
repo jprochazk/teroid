@@ -1,11 +1,20 @@
+import { NotInitializedError } from './NotInitializedError';
+import { AlreadyInitializedError } from './AlreadyInitializedError';
+
+export enum DebugLevel {
+    NONE = 0,
+    INFO = 1,
+    WARN = 2,
+    ERROR = 3
+}
 
 export abstract class Logger {
     private static initialized: boolean;
 
-    private static DEBUG_LEVEL: number;
+    private static DEBUG_LEVEL: 0 | 1 | 2 | 3;
 
     public static init(debugLevel: 'none' | 'info' | 'warn' | 'error' = 'error') {
-        if(this.initialized && true) throw new Error(`Logger is already initialized!`);
+        if(this.initialized && true) throw new AlreadyInitializedError("Logger");
         switch(debugLevel) {
             case 'none': this.DEBUG_LEVEL = 0;
             case 'info': this.DEBUG_LEVEL = 1;
@@ -16,7 +25,24 @@ export abstract class Logger {
         this.initialized = true;
     }
 
-    public static setDebugLevel(debugLevel: 'none' | 'info' | 'warn' | 'error' = 'error') {
+    public static isDebugLevel(compOp: '>=' | '<=' | '>' | '<' | '==', value: 'none' | 'info' | 'warn' | 'error') {
+        let dbglvl = 0;
+        switch(value) {
+            case 'none': dbglvl = 0;
+            case 'info': dbglvl = 1;
+            case 'warn': dbglvl = 2;
+            case 'error': dbglvl = 3;
+        }
+        switch(compOp) {
+            case '>=': return this.DEBUG_LEVEL >= dbglvl;
+            case '<=': return this.DEBUG_LEVEL <= dbglvl;
+            case '>': return this.DEBUG_LEVEL > dbglvl;
+            case '<': return this.DEBUG_LEVEL < dbglvl;
+            case '==': return this.DEBUG_LEVEL == dbglvl;
+        }
+    }
+
+    public static setDebugLevel(debugLevel: 'none' | 'info' | 'warn' | 'error') {
         switch(debugLevel) {
             case 'none': Logger.DEBUG_LEVEL = 0;
             case 'info': Logger.DEBUG_LEVEL = 1;
@@ -25,27 +51,28 @@ export abstract class Logger {
         }
     }
 
-    public static info(msg: string, ...args: any[]) {
-        if(!Logger.initialized) throw new Error(`Logger is not initialized!`);
+    public static get debugLevel(): 0 | 1 | 2 | 3 {
+        return this.DEBUG_LEVEL;
+    }
+
+    public static info(...args: any[]) {
+        if(!Logger.initialized) throw new NotInitializedError(`Logger`);
         if(Logger.DEBUG_LEVEL >= 1) {
-            if(args.length > 0) console.info(msg, args);
-            else console.info(msg);
+            console.info(...args);
         }
     }
 
-    public static warn(msg: string, ...args: any[]) {
-        if(!Logger.initialized) throw new Error(`Logger is not initialized!`);
+    public static warn(...args: any[]) {
+        if(!Logger.initialized) throw new NotInitializedError(`Logger`);
         if(Logger.DEBUG_LEVEL >= 2) {
-            if(args.length > 0) console.warn(msg, args);
-            else console.warn(msg);
+            console.warn(...args);
         }
     }
 
-    public static error(msg: string, ...args: any[]) {
-        if(!Logger.initialized) throw new Error(`Logger is not initialized!`);
+    public static error(...args: any[]) {
+        if(!Logger.initialized) throw new NotInitializedError(`Logger`);
         if(Logger.DEBUG_LEVEL >= 3) {
-            if(args.length > 0) console.error(msg, args);
-            else console.error(msg);
+            console.error(...args);
         }
     }
 }
