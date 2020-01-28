@@ -9,7 +9,8 @@ import { Bit } from "core/math/Bit";
  */
 const Events = {
     "keydown": (e: Event, state: InputState, callbacks: Array<(state: InputState)=>void>) => {
-        e.preventDefault()
+        e.preventDefault();
+        e.stopPropagation();
 
         let key = (<KeyboardEvent>e).key.toUpperCase();
         if((<KeyboardEvent>e).key === " ") key = "SPACE";
@@ -24,7 +25,8 @@ const Events = {
         callbacks.forEach(c => c(state_copy));
     },
     "keyup": (e: Event, state: InputState, callbacks: Array<(state: InputState)=>void>) => {
-        e.preventDefault()
+        e.preventDefault();
+        e.stopPropagation();
 
         let key = (<KeyboardEvent>e).key.toUpperCase();
         if((<KeyboardEvent>e).key === " ") key = "SPACE";
@@ -39,7 +41,8 @@ const Events = {
         callbacks.forEach(c => c(state_copy));
     },
     "mousemove": (e: Event, state: InputState, callbacks: Array<(state: InputState)=>void>) => {
-        e.preventDefault()
+        e.preventDefault();
+        e.stopPropagation();
         
         state.mouse.movementX = Math.clamp((<MouseEvent>e).movementX, -10, 10);
         state.mouse.movementY = Math.clamp((<MouseEvent>e).movementY, -10, 10);
@@ -52,7 +55,8 @@ const Events = {
         callbacks.forEach(c => c(state_copy));
     },
     "mousedown": (e: Event, state: InputState, callbacks: Array<(state: InputState)=>void>) => {
-        e.preventDefault()
+        e.preventDefault();
+        e.stopPropagation();
         state.mouse.buttons = (<MouseEvent>e).buttons;
         // if we have a pointer lock element and the document doesnt have one (pointer isnt locked)
         // request pointer lock
@@ -65,7 +69,8 @@ const Events = {
         callbacks.forEach(c => c(state_copy));
     },
     "mouseup": (e: Event, state: InputState, callbacks: Array<(state: InputState)=>void>) => {
-        e.preventDefault()
+        e.preventDefault();
+        e.stopPropagation();
         state.mouse.buttons = (<MouseEvent>e).buttons;
         // if we have a pointer lock element & no buttons are pressed, exit pointer lock
         if(state.mouse.pointerLockElement && document.pointerLockElement && state.mouse.buttons === 0) {
@@ -77,6 +82,7 @@ const Events = {
         callbacks.forEach(c => c(state_copy));
     },
     "wheel": (e: Event, state: InputState, callbacks: Array<(state: InputState)=>void>) => {
+        e.stopPropagation();
         state.mouse.wheelDelta = (<WheelEvent>e).deltaY;
         
         state.modifier.alt = (<WheelEvent>e).altKey;

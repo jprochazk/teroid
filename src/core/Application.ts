@@ -9,6 +9,7 @@ import { InputHandler } from 'core/io/Input';
 
 export abstract class Application {
     constructor(protected readonly canvas: HTMLCanvasElement) {
+        canvas.tabIndex = 100;
         Logger.init();
         GL.init(canvas);
         AssetManager.init();

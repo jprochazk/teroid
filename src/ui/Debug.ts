@@ -56,15 +56,6 @@ class DebugInput<T extends 'text' | 'range' | 'radio' | 'number' | 'color' | 'ch
             classes: ["debug-field-input"]
         });
 
-        this.element.focus = e => {
-            this.element.onkeydown = e => e.stopPropagation();
-            this.element.onkeyup = e => e.stopPropagation();
-        }
-        this.element.onblur = e => {
-            this.element.onkeydown = e => {};
-            this.element.onkeyup = e => {};
-        }
-
         this.element.setAttribute("type", type);
         if(type === 'text') {
             this.element.setAttribute("minlength", min.toString());
@@ -72,6 +63,11 @@ class DebugInput<T extends 'text' | 'range' | 'radio' | 'number' | 'color' | 'ch
         } else {
             this.element.setAttribute("min", min.toString());
             this.element.setAttribute("max", max.toString());
+        }
+
+        if(type === 'text' || type === 'number') {
+            this.element.onkeydown = e => e.stopPropagation();
+            this.element.onkeyup = e => e.stopPropagation();
         }
 
         if(type === 'number') {
@@ -84,9 +80,15 @@ class DebugInput<T extends 'text' | 'range' | 'radio' | 'number' | 'color' | 'ch
 
         const cb = valueChangeCallback || function(){};
         if(type === 'radio' || type === 'checkbox') {
-            this.element.onchange = e => cb((<HTMLInputElement>this.element).checked);
+            this.element.onchange = e => {
+                this.element.blur();
+                cb((<HTMLInputElement>this.element).checked);
+            }
         } else {
-            this.element.onchange = e => cb((<HTMLInputElement>this.element).value);
+            this.element.onchange = e => {
+                this.element.blur();
+                cb((<HTMLInputElement>this.element).value);
+            }
         }
     }
 }
