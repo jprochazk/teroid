@@ -2,6 +2,46 @@ import { Logger } from 'core/debug/Logger';
 import { InputHandler } from 'core/io/Input';
 import { UIBase } from 'ui/Base';
 
+
+export interface DebugFieldInfo {
+    name: string;
+    type: 'text' | 'range' | 'radio' | 'number' | 'color' | 'checkbox' | 'button';
+    callback: (data:any)=>void;
+    width?: number;
+    min?: number;
+    max?: number;
+    step?: number;
+}
+
+export class DebugWindow extends UIBase {
+    private _fields: DebugField[] = [];
+
+    constructor(fields: DebugFieldInfo[]) {
+        super("div", null, {
+            classes: ["debug"],
+            offset: [0, 0],
+            // 300px width
+            // 20px base height + 30 px for each field
+            size: [300, 10 + (30*fields.length) + 10],
+            resizable: false
+        });
+
+        this.addChild(new DebugWindowDrag(this));
+        
+        fields.forEach((field, i) => this._fields.push(
+            new DebugField(this, field.name, {
+                min: field.min || 0,
+                max: field.max || 10,
+                width: field.width || 200,
+                step: field.step,
+                fieldType: field.type, 
+                index: i * 30, 
+                valueChangeCallback: field.callback
+            })
+        ));
+    }
+}
+
 class DebugInput<T extends 'text' | 'range' | 'radio' | 'number' | 'color' | 'checkbox' | 'button'> extends UIBase {
     constructor(
         type: T,
@@ -49,22 +89,15 @@ class DebugInput<T extends 'text' | 'range' | 'radio' | 'number' | 'color' | 'ch
             this.element.onchange = e => cb((<HTMLInputElement>this.element).value);
         }
     }
-
-    public update() {
-        //console.log((<HTMLInputElement>this.element).value)
-
-        return super.update();
-    }
 }
 
 class DebugInputLabel extends UIBase {
 
-    constructor(window: DebugWindow, inputId: string, content: string) {
+    constructor(window: DebugWindow, content: string) {
         super("span", window, {
             resizable: false
         });
 
-        //this.element.setAttribute("for", inputId);
         this.element.innerText = content;
     }
 }
@@ -90,51 +123,9 @@ class DebugField extends UIBase {
             offset: [15, 15 + options.index],
             resizable: false
         });
-        
-        const input = new DebugInput(options.fieldType, this, options.min, options.max, options.step, options.valueChangeCallback);
-        const label = new DebugInputLabel(window, input.element.id, name);
 
-        this.addChild(label);
-        this.addChild(input);
-    }
-}
-
-export interface DebugFieldInfo {
-    name: string;
-    type: 'text' | 'range' | 'radio' | 'number' | 'color' | 'checkbox' | 'button';
-    callback: (data:any)=>void;
-    width?: number;
-    min?: number;
-    max?: number;
-    step?: number;
-}
-
-const getMaxFieldNameLength = (f:DebugFieldInfo[]) => f.map(it=>it.name).reduce((p, v)=>(v.length > p.length) ? v : p).length;
-
-export class DebugWindow extends UIBase {
-    private _fields: DebugField[] = [];
-
-    constructor(fields: DebugFieldInfo[]) {
-        super("div", null, {
-            classes: ["debug"],
-            offset: [0, 0],
-            size: [300, 10 + (30*fields.length) + 10],
-            resizable: false
-        });
-
-        this.addChild(new DebugWindowDrag(this));
-        
-        fields.forEach((field, i) => this._fields.push(
-            new DebugField(this, field.name, {
-                min: field.min || 0,
-                max: field.max || 10,
-                width: field.width || 200,
-                step: field.step,
-                fieldType: field.type, 
-                index: i * 30, 
-                valueChangeCallback: field.callback
-            })
-        ));
+        this.addChild(new DebugInputLabel(window, name));
+        this.addChild(new DebugInput(options.fieldType, this, options.min, options.max, options.step, options.valueChangeCallback));
     }
 }
 

@@ -9,7 +9,6 @@ import { Matrix4, Vector3 } from 'core/math/Math';
 import { DebugWindow } from 'ui/Debug';
 
 
-// @todo debug window - top priority!
 // @todo scene graph + renderer
 // @todo shader #ifdef, #endif + #include
 // @todo texture path in .tml instead of uniform data (for sampler uniforms)

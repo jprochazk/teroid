@@ -15,7 +15,7 @@ export interface Camera {
 //// CAMERA IMPLEMENTATIONS ////
 
 /**
- * Basic perspective camera with yaw <-90°; 90°> and pitch <0, 360>
+ * Basic first person perspective camera with yaw <-90°; 90°> and pitch <0, 360>
  */
 export class PerspectiveCamera3D implements Camera {
     private worldUp: Vector3;
@@ -153,10 +153,8 @@ export class PerspectiveCamera3D implements Camera {
 		this.yaw += offsetX;
 		this.pitch += offsetY;
 
-		if (this.pitch > 89.0)
-			this.pitch = 89.0;
-		if (this.pitch < -89.0)
-            this.pitch = -89.0;
+		if (this.pitch > 89.0) this.pitch = 89.0;
+		if (this.pitch < -89.0) this.pitch = -89.0;
             
         this.front = Vector3.create([
             Math.cos(Math.rad(this.yaw)) * Math.cos(Math.rad(this.pitch)),
