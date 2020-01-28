@@ -18,8 +18,42 @@ div.game-container {
     height: 100%;
 }
 
-.floating {
-    position: absolute;
+.debug {
+    border: 2px solid #7d7886;
+    border-radius: 6px;
+    background: #594b6194;
+}
+
+.debug-drag {
+    border: 1px solid #eee5fc;
+    border-bottom-right-radius: 10px;
+    background: #eee5fc;
+}
+
+.debug-drag :hover {
+    border-color: #7d7886;
+    background: #7d7886;
+}
+
+.debug-field {
+    width: 80%;
+    color: white;
+    display: grid;
+    grid-template-columns: 70% 30%;
+}
+
+.debug-field-input {
+    color: white;
+    border: 1px solid #7d7886;
+    background: #7b678694;
+    width: 100px;
+    margin-left: 2px;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .loading-spinner {
