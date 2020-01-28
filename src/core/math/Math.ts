@@ -2,6 +2,7 @@ declare global {
     interface Math {
         rad(angle: number): number;
         deg(angle: number): number;
+        clamp(n: number, min: number, max: number): number;
         EPSILON: number;
     } 
 }
@@ -15,6 +16,10 @@ Math.rad = function(angle: number): number {
 Math.deg = function(angle: number): number {
     return angle * PI_DIV_180;
 }
+
+Math.clamp = function(n, min, max) {
+    return Math.min(Math.max(n, min), max);
+};
 
 Math.EPSILON = 0.000001;
 
@@ -568,7 +573,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Adds other vector to the receiving vector
+     * Adds other vector to the receiving vector, returning a new vector
      * @this {this} first operand
      * @param {Vector3} that second operand
      */
@@ -582,7 +587,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Subtracts other vector from the receiving vector
+     * Subtracts other vector from the receiving vector, returning a new vector
      * @this {this} first operand
      * @param {Vector3} that second operand
      */
@@ -596,7 +601,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Multiples receiving vector by the other vector
+     * Multiples receiving vector by the other vector, returning a new vector
      * @this {this} first operand
      * @param {Vector3} that second operand
      */
@@ -610,7 +615,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Divides receiving vector by the other vector
+     * Divides receiving vector by the other vector, returning a new vector
      * @this {this} first operand
      * @param {Vector3} that second operand
      */
@@ -624,7 +629,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Scales receiving vector by some amount
+     * Scales receiving vector by some amount, returning a new vector
      * @param {number} amount the amount to scale by
      */
     public nscale(amount: number): Vector3 {
@@ -637,7 +642,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Component-wise negation of the receiving vector
+     * Component-wise negation of the receiving vector, returning a new vector
      */
     public nnegate(): Vector3 {
         let out = Vector3.create();
@@ -649,7 +654,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Component-wise inversion of the receiving vector
+     * Component-wise inversion of the receiving vector, returning a new vector
      */
     public ninverse(): Vector3 {
         let out = Vector3.create();
@@ -661,7 +666,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Normalize the receiving vector
+     * Normalize the receiving vector, returning a new vector
      */
     public nnormalize(): Vector3 {
         let x = this[0];
@@ -680,7 +685,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Applies Math.ceil to all components of the receiving vector
+     * Applies Math.ceil to all components of the receiving vector, returning a new vector
      * @this {this} vector to apply operation to
      */
     public nceil(): Vector3 {
@@ -693,7 +698,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Applies Math.floor to all components of the receiving vector
+     * Applies Math.floor to all components of the receiving vector, returning a new vector
      * @this {this} vector to apply operation to
      */
     public nfloor(): Vector3 {
@@ -706,7 +711,7 @@ class Vector3 extends Array<number> {
     }
 
     /**
-     * Sets all components of the receiving vector to 0
+     * Sets all components of the receiving vector to 0, returning a new vector
      */
     public nzero(): Vector3 {
         let out = Vector3.create();
