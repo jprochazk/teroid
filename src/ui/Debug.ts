@@ -5,8 +5,8 @@ import { UIBase } from 'ui/Base';
 
 export interface DebugFieldInfo {
     name: string;
-    type: 'text' | 'range' | 'radio' | 'number' | 'color' | 'checkbox' | 'button';
-    callback: (data:any)=>void;
+    type: 'output' | 'text' | 'range' | 'radio' | 'number' | 'color' | 'checkbox' | 'button';
+    callback?: (data:any)=>void;
     width?: number;
     min?: number;
     max?: number;
@@ -14,7 +14,9 @@ export interface DebugFieldInfo {
 }
 
 export class DebugWindow extends UIBase {
-    private _fields: DebugField[] = [];
+    private static readonly DEFAULT_CALLBACK = (d:any)=>Logger.info(d);
+    private _fieldCount: number = 0;
+    private _fields: Map<string, DebugField> = new Map();
 
     constructor(fields: DebugFieldInfo[]) {
         super("div", null, {
@@ -28,7 +30,8 @@ export class DebugWindow extends UIBase {
 
         this.addChild(new DebugWindowDrag(this));
         
-        fields.forEach((field, i) => this._fields.push(
+        this._fieldCount = fields.length;
+        fields.forEach((field, i) => this._fields.set(field.name,
             new DebugField(this, field.name, {
                 min: field.min || 0,
                 max: field.max || 10,
@@ -36,9 +39,62 @@ export class DebugWindow extends UIBase {
                 step: field.step,
                 fieldType: field.type, 
                 index: i * 30, 
-                valueChangeCallback: field.callback
+                valueChangeCallback: field.callback || DebugWindow.DEFAULT_CALLBACK
             })
         ));
+    }
+
+    public addField(field: DebugFieldInfo) {
+        this._fieldCount++;
+        this._fields.set(field.name,
+            new DebugField(this, field.name, {
+                min: field.min || 0,
+                max: field.max || 10,
+                width: field.width || 200,
+                step: field.step,
+                fieldType: field.type, 
+                index: this._fieldCount, 
+                valueChangeCallback: field.callback || DebugWindow.DEFAULT_CALLBACK
+            })
+        );
+
+        const mh = parseInt(this.element.style.minHeight) + 30;
+        this.element.style.minHeight = mh.toString() + "px";
+        const h = parseInt(this.element.style.height) + 30;
+        this.element.style.height = h.toString() + "px";
+    }
+
+    public set(fieldName: string, value: any) {
+        const field = this._fields.get(fieldName);
+        if(!field) throw new Error(`No field ${fieldName} in debug window`);
+
+        if(!field.set) throw new Error(`Field ${fieldName} is not output!`);
+        field.set(value);
+    }
+}
+
+class DebugOutput extends UIBase {
+    private value: any;
+    constructor(
+        private field: DebugField
+    ) {
+        super("span", field.parent, {
+            resizable: false,
+            classes: ["debug-field-input"]
+        });
+    }
+
+    public set(value: any): void {
+        let nextVal;
+        if(value.constructor.name === 'Array') {
+            nextVal = `[${(<any[]>value).join(', ')}]`; // fuck it dood
+        } else {
+            nextVal = value.toString();
+        }
+        if(nextVal === this.value) return;
+
+        this.value = nextVal;
+        this.element.innerText = nextVal;
     }
 }
 
@@ -93,7 +149,7 @@ class DebugInput<T extends 'text' | 'range' | 'radio' | 'number' | 'color' | 'ch
     }
 }
 
-class DebugInputLabel extends UIBase {
+class DebugLabel extends UIBase {
 
     constructor(window: DebugWindow, content: string) {
         super("span", window, {
@@ -106,6 +162,7 @@ class DebugInputLabel extends UIBase {
 
 class DebugField extends UIBase {
 
+    public readonly set: ((value: any) => void) | undefined;
 
     constructor(
         window: DebugWindow,
@@ -114,7 +171,7 @@ class DebugField extends UIBase {
             width: number,
             min: number,
             max: number,
-            fieldType: 'text' | 'range' | 'radio' | 'number' | 'color' | 'checkbox' | 'button', 
+            fieldType: 'output' | 'text' | 'range' | 'radio' | 'number' | 'color' | 'checkbox' | 'button', 
             index: number,
             valueChangeCallback?: (data: any)=>void,
             step?: number,
@@ -122,12 +179,21 @@ class DebugField extends UIBase {
     ) {
         super("div", window, {
             classes: ["debug-field"],
-            offset: [15, 15 + options.index],
+            offset: [15, 15 + 15 * options.index],
             resizable: false
         });
 
-        this.addChild(new DebugInputLabel(window, name));
-        this.addChild(new DebugInput(options.fieldType, this, options.min, options.max, options.step, options.valueChangeCallback));
+        this.addChild(new DebugLabel(window, name));
+        if(options.fieldType === 'output') {
+            const output = new DebugOutput(this);
+            this.set = (v:any)=>{
+                output.set.call(output, v);
+            }
+
+            this.addChild(output);
+        } else {
+            this.addChild(new DebugInput(options.fieldType, this, options.min, options.max, options.step, options.valueChangeCallback));
+        }
     }
 }
 

@@ -22,9 +22,7 @@ export class Mesh {
     }
 
     public static fromJson(mesh_json: ModelMeshJson, attributes: ShaderReflection.Attribute[]): Mesh {
-        const gl = GL.context; 
-
-        console.log(mesh_json.buffers.vertex, mesh_json.buffers.index);
+        const gl = GL.context;
 
         const stride = attributes[0].stride;
         if(mesh_json.buffers.vertex.length % stride !== 0) 
@@ -47,7 +45,6 @@ export class Mesh {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh_json.buffers.vertex), gl.STATIC_DRAW);
 
         attributes.forEach(attribute => {
-            console.log(attribute);
             gl.enableVertexAttribArray(attribute.location);
             gl.vertexAttribPointer(
                 attribute.location, 

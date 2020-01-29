@@ -17,10 +17,18 @@ import { DebugWindow } from 'ui/Debug';
 class Game extends Application {
     private loadAnim: LoadingAnimation;
 
+    private debugWindow: DebugWindow;
+
     constructor(canv: HTMLCanvasElement) {
         super(canv);
 
         this.canvas.oncontextmenu = e => e.preventDefault();
+        
+
+        const vcb = (d:any) => console.log(d);
+        this.debugWindow = new DebugWindow([
+            {name:"someoutput", type: "output"}
+        ]);
 
         this.loadAnim = new LoadingAnimation();
     }
@@ -28,12 +36,7 @@ class Game extends Application {
     public async start() {
         this.loadAnim.show();
 
-        const vcb = (d:any) => console.log(d);
-        const debugWindow = new DebugWindow([
-            {name:"some option", type: "text", callback: vcb},
-            {name:"Hello2", type: "range", callback: vcb},
-            {name:"SOMEUNIFORM", type: "range", callback: vcb}
-        ]);
+        this.debugWindow.set("someoutput", "Hello!");
 
         const gl = GL.context;
 
@@ -45,15 +48,17 @@ class Game extends Application {
         // these will be loaded directly into a scene
         const model = await ModelManager.load("SampleModel");
         if(!model) throw new Error(`failed to get material`);
-        Logger.info(model);
 
         // these will be stored in scene
         const material = MaterialManager.loadedMaterials.get("SampleMaterial");
         if(!material) throw new Error(`failed to get material`);
-        Logger.info(material);
 
         gl.clearColor(0.2, 0.2, 0.2, 1);
         gl.enable(gl.DEPTH_TEST);
+
+        this.debugWindow.addField({
+            name:"camera_pos",type:"output"
+        });
 
         const loop = () => {
 
@@ -62,9 +67,10 @@ class Game extends Application {
             }
 
             camera.update(1);
+            this.debugWindow.set("camera_pos", camera.position.toArray().map(it => it.toFixed(1)));
 
             // render
-            debugWindow.update();
+            this.debugWindow.update();
 
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
